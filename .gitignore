@@ -1,0 +1,37 @@
+@"
+# Python / Jupyter
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.ipynb_checkpoints/
+
+# Virtual env
+.venv/
+env/
+venv/
+
+# VSCode
+.vscode/
+
+# Data / outputs / models
+backend/data/
+!backend/data/.gitkeep
+outputs/
+logs/
+checkpoints/
+
+# Frontend
+node_modules/
+frontend/.next/
+frontend/.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+"@ | Set-Content -Encoding UTF8 .gitignore
+
+# 空フォルダ維持用
+New-Item -ItemType File -Path backend\data\.gitkeep -Force | Out-Null
+
+git add .gitignore backend/data/.gitkeep
+git commit -m "chore: add .gitignore and keep data dir out of repo"
