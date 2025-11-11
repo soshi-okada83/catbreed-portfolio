@@ -47,6 +47,47 @@ export default function Upload({ onResult }: { onResult: (r: PredictResult) => v
   };
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => handleFiles(e.target.files);
 
+  // バックエンドの { top1, top3 } 返却に対応（旧 {class_name, confidence} も互換）
+  const callApi = async (file: File): Promise<PredictResult> => {
+    const base = process.env.NEXT_PUBLIC_API_URL;
+    if (!base) throw new Error("NEXT_PUBLIC_API_URL is not set");
+
+    const form = new FormData();
+    form.append("file", file);
+
+    const res = await fetch(`${base}/predict`, { method: "POST", body: form });
+    if (!res.ok) {
+      const msg = await res.text().catch(() => "");
+      throw new Error(`API error: ${res.status} ${msg}`);
+    }
+
+    const json = await res.json();
+
+    const prettify = (s: string) => s.replace(/_/g, " ");
+
+    // v2: { top1: {class_name, confidence}, top3: [...] }
+    if (json?.top1 && json?.top3) {
+      return {
+        top1: { breed: prettify(json.top1.class_name), score: json.top1.confidence },
+        top3: (json.top3 as Array<{ class_name: string; confidence: number }>).map((x) => ({
+          breed: prettify(x.class_name),
+          score: x.confidence,
+        })),
+      };
+    }
+
+    // v1互換: { class_name, confidence }
+    if (json?.class_name && typeof json?.confidence === "number") {
+      return {
+        top1: { breed: prettify(json.class_name), score: json.confidence },
+        top3: [{ breed: prettify(json.class_name), score: json.confidence }],
+      };
+    }
+
+    throw new Error("Unexpected API response");
+  };
+
+
   const fakePredict = async (_file: File): Promise<PredictResult> => {
     await new Promise((r) => setTimeout(r, 600));
     return {
@@ -59,25 +100,16 @@ export default function Upload({ onResult }: { onResult: (r: PredictResult) => v
     };
   };
 
-  const callApi = async (file: File): Promise<PredictResult> => {
-    const base = process.env.NEXT_PUBLIC_API_URL;
-    if (!base) throw new Error("NEXT_PUBLIC_API_URL is not set");
-    const form = new FormData();
-    form.append("file", file);
-    const res = await fetch(`${base}/predict`, { method: "POST", body: form });
-    if (!res.ok) throw new Error(`API error: ${res.status}`);
-    return (await res.json()) as PredictResult;
-  };
-
   const onClickAnalyze = async () => {
     if (!file) return;
     setLoading(true);
+    setError(null);
     try {
       const data = process.env.NEXT_PUBLIC_API_URL ? await callApi(file) : await fakePredict(file);
       onResult(data);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      setError("推論に失敗しました");
+      setError(e?.message || "推論に失敗しました");
     } finally {
       setLoading(false);
     }
@@ -86,14 +118,20 @@ export default function Upload({ onResult }: { onResult: (r: PredictResult) => v
   return (
     <div className="w-full max-w-xl mx-auto">
       <div
-        onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
         onDrop={onDrop}
         className="flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer hover:bg-neutral-900/20 transition"
       >
         <p className="text-lg font-medium">画像をドラッグ＆ドロップ</p>
         <p className="text-sm opacity-70">またはクリックして選択（JPEG/PNG/WebP、{maxMB}MB以下）</p>
         <input type="file" accept={acceptTypes.join(",")} onChange={onChange} className="hidden" id="file-input" />
-        <label htmlFor="file-input" className="mt-2 px-4 py-2 rounded-xl shadow bg-neutral-800 hover:bg-neutral-700 active:scale-[0.99]">
+        <label
+          htmlFor="file-input"
+          className="mt-2 px-4 py-2 rounded-xl shadow bg-neutral-800 hover:bg-neutral-700 active:scale-[0.99]"
+        >
           ファイルを選ぶ
         </label>
       </div>
@@ -102,7 +140,9 @@ export default function Upload({ onResult }: { onResult: (r: PredictResult) => v
         <div className="mt-6 grid grid-cols-2 gap-4 items-start">
           <img src={preview} alt="preview" className="w-full h-44 object-cover rounded-xl" />
           <div className="flex flex-col gap-2">
-            <p className="text-sm opacity-80">{file?.name} • {(file!.size / 1024).toFixed(0)} KB</p>
+            <p className="text-sm opacity-80">
+              {file?.name} • {(file!.size / 1024).toFixed(0)} KB
+            </p>
             <button
               onClick={onClickAnalyze}
               disabled={loading}
