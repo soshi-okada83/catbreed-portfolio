@@ -1,0 +1,23 @@
+{
+  "project_root": "c:\\Users\\81802\\Portfolio\\catbreed-portfolio\\backend\\notebooks",
+  "data_dir": "../data/oxford-iiit-pet/processed_cats",
+  "train_dir": "train",
+  "val_dir": "val",
+  "test_dir": "test",
+  "classes_file": "classes.json",
+  "out_dir": "artifacts/week3",
+  "run_name": "run_20251109_151018",
+  "img_size": 224,
+  "batch_size": 32,
+  "num_workers": 4,
+  "epochs": 15,
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "model_name": "resnet50",
+  "pretrained": true,
+  "freeze_backbone": false,
+  "label_smoothing": 0.0,
+  "early_stop_patience": 5,
+  "use_aug": true,
+  "mixup_alpha": 0.0
+}
