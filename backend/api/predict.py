@@ -1,8 +1,5 @@
-# backend/api/predict.py
-
-from fastapi import FastAPI, File, UploadFile, HTTPException  # type: ignore[import]
-from fastapi.middleware.cors import CORSMiddleware  # type: ignore[import]
-from PIL import Image
+from fastapi import APIRouter, File, UploadFile, HTTPException  # type: ignore[import]
+from PIL import Image  # type: ignore[import]
 import io, glob, traceback, logging
 from pathlib import Path
 import torch  # type: ignore[import]
@@ -11,17 +8,12 @@ import torchvision.models as models  # type: ignore[import]
 
 logging.basicConfig(level=logging.INFO)
 
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+router = APIRouter()
 
 def find_latest_best_pt() -> Path:
+    """
+    学習成果物(artifacts/**/best.pt)の中で、最も新しいチェックポイントを返す
+    """
     project_root = Path(__file__).resolve().parents[2]
     pattern = str(project_root / "backend/notebooks/artifacts/**/best.pt")
     candidates = [Path(p) for p in glob.glob(pattern, recursive=True)]
@@ -44,7 +36,7 @@ CLASSES = [
 
 def build_model(num_classes: int):
     """
-    ★ ResNet50（bottleneck系, 最終特徴2048）で復元
+    ResNet50（bottleneck系, 最終特徴2048）で復元
     """
     m = models.resnet50(weights=None)
     in_features = m.fc.in_features  # = 2048
@@ -93,7 +85,7 @@ def load_model_once():
                              [0.229, 0.224, 0.225])
     ])
 
-    # 出力形状チェック（クラス数を確定）
+    # 出力形状チェック
     with torch.no_grad():
         dummy = torch.zeros(1, 3, 224, 224, device=_device)
         out = _model(dummy)
@@ -103,7 +95,7 @@ def load_model_once():
             _num_classes = int(out.shape[1])
     logging.info(f"Model ready on {_device}, num_classes={_num_classes}")
 
-@app.get("/health")
+@router.get("/health")
 def health():
     try:
         load_model_once()
@@ -111,7 +103,7 @@ def health():
     except Exception as e:
         return {"status": "error", "detail": repr(e)}
 
-@app.post("/predict")
+@router.post("/predict")
 async def predict(file: UploadFile = File(...)):
     try:
         load_model_once()

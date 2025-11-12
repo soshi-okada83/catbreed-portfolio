@@ -27,6 +27,10 @@ frontend/node_modules/
 frontend/.env.local
 frontend/out/
 
+# Backend
+backend/.env
+frontend/.env.local
+
 # OS
 .DS_Store
 Thumbs.db

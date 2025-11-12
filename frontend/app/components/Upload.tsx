@@ -1,5 +1,8 @@
 "use client";
 import React, { useCallback, useMemo, useState } from "react";
+import { fetchDescription } from "../lib/fetchDescription";
+import BreedDescriptionCard from "./BreedDescriptionCard";
+import { BreedDescription } from "../types/description";
 
 type PredictResult = {
   top1: { breed: string; score: number };
@@ -12,16 +15,18 @@ export default function Upload({ onResult }: { onResult: (r: PredictResult) => v
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const [result, setResult] = useState<PredictResult | null>(null);
+  const [desc, setDesc] = useState<BreedDescription | null>(null);
+  const [descLoading, setDescLoading] = useState(false);
+
   const acceptTypes = useMemo(() => ["image/jpeg", "image/png", "image/webp"], []);
   const maxMB = 5;
 
+  const contentWrap = "w-full max-w-3xl mx-auto"; // ← 幅をこれで統一
+
   const validate = (f: File) => {
-    if (!acceptTypes.includes(f.type)) {
-      return "画像は JPEG/PNG/WebP を選んでください";
-    }
-    if (f.size > maxMB * 1024 * 1024) {
-      return `ファイルは ${maxMB}MB 以下にしてください`;
-    }
+    if (!acceptTypes.includes(f.type)) return "画像は JPEG/PNG/WebP を選んでください";
+    if (f.size > maxMB * 1024 * 1024) return `ファイルは ${maxMB}MB 以下にしてください`;
     return null;
   };
 
@@ -33,11 +38,15 @@ export default function Upload({ onResult }: { onResult: (r: PredictResult) => v
       setError(v);
       setFile(null);
       setPreview(null);
+      setDesc(null);
+      setResult(null);
       return;
     }
     setError(null);
     setFile(f);
     setPreview(URL.createObjectURL(f));
+    setDesc(null);
+    setResult(null);
   }, []);
 
   const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -47,25 +56,15 @@ export default function Upload({ onResult }: { onResult: (r: PredictResult) => v
   };
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => handleFiles(e.target.files);
 
-  // バックエンドの { top1, top3 } 返却に対応（旧 {class_name, confidence} も互換）
   const callApi = async (file: File): Promise<PredictResult> => {
     const base = process.env.NEXT_PUBLIC_API_URL;
     if (!base) throw new Error("NEXT_PUBLIC_API_URL is not set");
-
     const form = new FormData();
     form.append("file", file);
-
     const res = await fetch(`${base}/predict`, { method: "POST", body: form });
-    if (!res.ok) {
-      const msg = await res.text().catch(() => "");
-      throw new Error(`API error: ${res.status} ${msg}`);
-    }
-
+    if (!res.ok) throw new Error(`API error: ${res.status} ${await res.text().catch(() => "")}`);
     const json = await res.json();
-
     const prettify = (s: string) => s.replace(/_/g, " ");
-
-    // v2: { top1: {class_name, confidence}, top3: [...] }
     if (json?.top1 && json?.top3) {
       return {
         top1: { breed: prettify(json.top1.class_name), score: json.top1.confidence },
@@ -75,27 +74,23 @@ export default function Upload({ onResult }: { onResult: (r: PredictResult) => v
         })),
       };
     }
-
-    // v1互換: { class_name, confidence }
     if (json?.class_name && typeof json?.confidence === "number") {
       return {
         top1: { breed: prettify(json.class_name), score: json.confidence },
         top3: [{ breed: prettify(json.class_name), score: json.confidence }],
       };
     }
-
     throw new Error("Unexpected API response");
   };
-
 
   const fakePredict = async (_file: File): Promise<PredictResult> => {
     await new Promise((r) => setTimeout(r, 600));
     return {
-      top1: { breed: "Scottish Fold", score: 0.82 },
+      top1: { breed: "Ragdoll", score: 0.998 },
       top3: [
-        { breed: "Scottish Fold", score: 0.82 },
-        { breed: "British Shorthair", score: 0.12 },
-        { breed: "American Shorthair", score: 0.06 },
+        { breed: "Ragdoll", score: 0.998 },
+        { breed: "Persian", score: 0.001 },
+        { breed: "Birman", score: 0.001 },
       ],
     };
   };
@@ -104,9 +99,22 @@ export default function Upload({ onResult }: { onResult: (r: PredictResult) => v
     if (!file) return;
     setLoading(true);
     setError(null);
+    setDesc(null);
+
     try {
       const data = process.env.NEXT_PUBLIC_API_URL ? await callApi(file) : await fakePredict(file);
+      setResult(data);
       onResult(data);
+
+      if (process.env.NEXT_PUBLIC_API_URL) {
+        setDescLoading(true);
+        try {
+          const d = await fetchDescription(data.top1.breed, "ja");
+          setDesc(d);
+        } finally {
+          setDescLoading(false);
+        }
+      }
     } catch (e: any) {
       console.error(e);
       setError(e?.message || "推論に失敗しました");
@@ -116,26 +124,25 @@ export default function Upload({ onResult }: { onResult: (r: PredictResult) => v
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto">
+    <div className={contentWrap}>
+      {/* アップロード枠*/}
       <div
-        onDragOver={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
+        onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
         onDrop={onDrop}
-        className="flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer hover:bg-neutral-900/20 transition"
+        className="flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer hover:bg-neutral-900/20 transition border-neutral-700"
       >
         <p className="text-lg font-medium">画像をドラッグ＆ドロップ</p>
         <p className="text-sm opacity-70">またはクリックして選択（JPEG/PNG/WebP、{maxMB}MB以下）</p>
         <input type="file" accept={acceptTypes.join(",")} onChange={onChange} className="hidden" id="file-input" />
         <label
           htmlFor="file-input"
-          className="mt-2 px-4 py-2 rounded-xl shadow bg-neutral-800 hover:bg-neutral-700 active:scale-[0.99]"
+          className="mt-2 px-4 py-2 rounded-xl shadow bg-pink-600/90 hover:bg-pink-500 active:scale-[0.99]"
         >
           ファイルを選ぶ
         </label>
       </div>
 
+      {/* プレビュー＋実行ボタン */}
       {preview && (
         <div className="mt-6 grid grid-cols-2 gap-4 items-start">
           <img src={preview} alt="preview" className="w-full h-44 object-cover rounded-xl" />
@@ -146,13 +153,32 @@ export default function Upload({ onResult }: { onResult: (r: PredictResult) => v
             <button
               onClick={onClickAnalyze}
               disabled={loading}
-              className="px-4 py-2 rounded-xl shadow bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50"
+              className="px-4 py-2 rounded-xl shadow bg-pink-600 hover:bg-pink-500 disabled:opacity-50"
             >
               {loading ? "解析中..." : "この画像で推論する"}
             </button>
           </div>
         </div>
       )}
+
+      {/* 結果 */}
+      {result && (
+        <div className="mt-8 rounded-2xl border border-dotted border-neutral-700 p-4 text-sm text-neutral-300">
+          <div className="font-semibold">
+            Top-1: {result.top1.breed} ({(result.top1.score * 100).toFixed(1)}%)
+          </div>
+          <div className="opacity-80 mt-1">
+            Top-3:{" "}
+            {result.top3
+              .map((b) => `${b.breed} ${(b.score * 100).toFixed(1)}%`)
+              .join(" / ")}
+          </div>
+        </div>
+      )}
+
+      {/* 説明カードは 結果の下 に出す */}
+      {descLoading && <p className="mt-6 opacity-80">説明文を生成中…</p>}
+      {desc && <BreedDescriptionCard className="mt-6" data={desc} />}
 
       {error && <p className="mt-4 text-red-400">{error}</p>}
     </div>

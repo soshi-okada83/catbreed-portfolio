@@ -13,9 +13,9 @@ export default function Page() {
 
   return (
     <main className="min-h-dvh px-6 py-10 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold">猫種推定デモ（モック）</h1>
+      <h1 className="text-3xl font-bold">猫種推定アプリ</h1>
       <p className="mt-2 opacity-80">
-        画像をアップすると、推定された猫種とスコア（ダミー）を表示します。
+        画像をアップすると、推定された猫種と説明文を表示します。
       </p>
 
       <section className="mt-8">
