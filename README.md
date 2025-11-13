@@ -98,12 +98,16 @@ Response:
 }
 ```
 
-使用技術
-| **フロントエンド** | Next.js / TypeScript / Tailwind CSS / shadcn/ui            |
-| **バックエンド**   | FastAPI / Python 3.10 / OpenAI API / Uvicorn               |
-| **AIモデル**      | PyTorch / EfficientNet-B0 / torchvision / numpy / Pillow   |
-| **環境管理**      | venv / .env / Git / GitHub                                 |
-| **その他**        | Swagger UI / ESLint / Prettier                             |
+## 💻 使用技術
+```bash
+| 分類          | 使用技術                                                       |
+| ----------- | ---------------------------------------------------------- |
+| **フロントエンド** | Next.js 14 / TypeScript / Tailwind CSS / shadcn/ui         |
+| **バックエンド**  | FastAPI / Python 3.10 / OpenAI API / Uvicorn               |
+| **AIモデル**   | PyTorch / EfficientNet-B0 / torchvision / numpy / Pillow   |
+| **環境管理**    | venv / .env / Git / GitHub                                 |
+| **その他**     | Swagger UI / ESLint / Prettier / GitHub Push Protection 対応 |
+```
 
 🧭 実行方法
 ✅ バックエンド (FastAPI)
