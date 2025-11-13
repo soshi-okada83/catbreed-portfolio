@@ -12,7 +12,6 @@ AIモデルを使って猫の画像から猫種を推定し、GPTを用いてそ
 | **目的** | 猫画像から猫種を分類し、推定結果に応じた猫種の説明を自動生成する |
 | **構成** | Next.js (フロントエンド) + FastAPI (バックエンド) + PyTorch (AIモデル) + OpenAI API |
 | **期間** | 6週間（Week1〜Week6）で段階的に開発 |
-| **開発者** | 岡田 蒼史（大学3年 / 機械学習 × Webフルスタック志向） |
 
 ---
 
@@ -99,15 +98,14 @@ Response:
 ```
 
 ## 💻 使用技術
-```bash
-| 分類          | 使用技術                                                       |
-| ----------- | ---------------------------------------------------------- |
-| **フロントエンド** | Next.js 14 / TypeScript / Tailwind CSS / shadcn/ui         |
-| **バックエンド**  | FastAPI / Python 3.10 / OpenAI API / Uvicorn               |
-| **AIモデル**   | PyTorch / EfficientNet-B0 / torchvision / numpy / Pillow   |
-| **環境管理**    | venv / .env / Git / GitHub                                 |
-| **その他**     | Swagger UI / ESLint / Prettier / GitHub Push Protection 対応 |
-```
+
+| 分類 | 技術 |
+|------|------|
+| **フロントエンド** | Next.js / TypeScript / Tailwind CSS / shadcn/ui |
+| **バックエンド** | FastAPI / Python 3.10 / OpenAI API / Uvicorn |
+| **AIモデル** | PyTorch / EfficientNet-B0 / torchvision / numpy / Pillow |
+| **環境管理** | venv / .env / Git / GitHub |
+| **その他** | Swagger UI / ESLint / Prettier / GitHub Push Protection 対応 |
 
 🧭 実行方法
 ✅ バックエンド (FastAPI)
