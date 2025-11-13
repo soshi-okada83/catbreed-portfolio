@@ -17,6 +17,7 @@ AIモデルを使って猫の画像から猫種を推定し、GPTを用いてそ
 
 ## 🧩 構成図
 
+```bash
 catbreed-portfolio/
 ├── backend/ # FastAPI + PyTorch モデルサーバー
 │ ├── app/
@@ -38,7 +39,7 @@ catbreed-portfolio/
 ├── docs/ # 各週のまとめ
 │
 └── README.md
-
+```
 ---
 
 ## 🧠 Week別進捗概要
