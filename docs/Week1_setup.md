@@ -49,11 +49,9 @@ catbreed-portfolio/
 ```bash
 cd /Portfolio
 npx create-next-app@latest catbreed-portfolio-frontend
-
-推奨設定：TypeScript / ESLint / Tailwind / App Router
-
-実行確認：npm run dev → http://localhost:3000
 ```
+推奨設定：TypeScript / ESLint / Tailwind / App Router
+実行確認：npm run dev → http://localhost:3000
 
 ### 2. ディレクトリ整備
 ```bash
@@ -76,7 +74,7 @@ pip install fastapi "uvicorn[standard]" pillow python-multipart
 ```
 
 app/main.py
-```bash
+```python
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     return {
@@ -93,13 +91,20 @@ async def predict(file: UploadFile = File(...)):
 
 ### 5. フロントと接続
 .env.local
-```bash
+```ini
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 Upload.tsx の fetch 呼び出しをAPI優先に変更
 npm run dev → 実画像アップロードでダミー結果表示OK
 
-### Week1の成果まとめ
+---
+
+🧩 確認スクリーンショット
+![完成UI画像](../img/week1.jpg)
+
+---
+
+### 🧩Week1の成果まとめ
 | 項目               | 状態     |
 | ---------------- | ------ |
 | Next.js フロント構築   | ✅ 完了   |
