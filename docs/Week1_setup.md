@@ -13,32 +13,30 @@
 | フロント | Next.js（App Router, Tailwind, TypeScript） |
 | バックエンド | FastAPI（CORS対応, `/predict`, `/healthz`） |
 | 通信確認 | フロントからPOSTで画像送信→JSON受信OK |
-| 結果表示 | ダミー推論結果（Top-1, Top-3）をUIに表示 |
+| 結果表示 | ダミー推論結果をUIに表示 |
 | 開発環境 | Node.js + Python + 仮想環境（venv） |
 
 ---
 
 ## 📂 ディレクトリ構成
-Portfolio/
-    catbreed-portfolio/
-        frontend/
-            app/
-                components/Upload.tsx
-                page.tsx
-            .env.local
-
-        backend/
-            app/
-                main.py
-
-        docs/
-            Week1_setup.md
-
-
+```bash
+catbreed-portfolio/
+├── backend/
+│ └── app/
+│   └── main.py
+│
+├── frontend/
+│ ├── app/
+│ │ ├── components/Upload.tsx
+│ │ └── page.tsx
+│ └── .env.local
+│
+└── docs/Week1_setup.md
+```
 ---
 
 ## ⚙️ 使用技術
-- **フロント:** Next.js 16, TypeScript, TailwindCSS, App Router
+- **フロント:** Next.js, TypeScript, TailwindCSS, App Router
 - **バックエンド:** FastAPI, Uvicorn, Pillow, python-multipart
 - **通信:** fetch(FormData), CORS設定
 - **環境:** Node 18+, Python 3.11+, Windows PowerShell
@@ -49,7 +47,7 @@ Portfolio/
 
 ### 1. フロントエンド雛形作成
 ```bash
-cd ~/Portfolio
+cd /Portfolio
 npx create-next-app@latest catbreed-portfolio-frontend
 
 推奨設定：TypeScript / ESLint / Tailwind / App Router
@@ -67,7 +65,7 @@ mv catbreed-portfolio-frontend catbreed-portfolio/frontend
 app/components/Upload.tsx
 → ドラッグ＆ドロップ＋ファイル選択＋プレビュー表示
 app/page.tsx
-→ ダミー推論結果を表示（Top-1 / Top-3）
+→ ダミー推論結果を表示
 
 ### 4. バックエンド作成
 ```bash
