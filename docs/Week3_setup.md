@@ -81,9 +81,9 @@ catbreed-portfolio/
 backend/notebooks/Week3_01_train_catbreed_model.ipynb
 ```
 目的：
-・転移学習モデル構築（ResNet50）
-・train/val/testで学習・評価
-・学習履歴の保存、モデル出力、推論テスト
+- **転移学習モデル構築（ResNet50）**
+- **train/val/testで学習・評価**
+- **学習履歴の保存、モデル出力、推論テスト**
 
 ### 2. Config設定
 Notebook内で以下の設定を確認・調整：
@@ -135,6 +135,7 @@ macro avg f1 : 0.813
 ```
 混同行列で主要クラスの精度を可視化。
 Bombay, Persian, Egyptian などは高精度、Bengal, Maine がやや混同。
+
 ![精度の可視化図](../img/week3-1.jpg)
 
 ### 7. モデル・設定保存
@@ -150,13 +151,14 @@ artifacts/week3/run_20251109_151018/
 ### 8. 推論テスト
 任意画像に対して推論。
 ```bash
-pred = predict_image("C:/Users/.../Downloads/cat.jpg", model, classes)
+pred = predict_image("C:/Users/.../Downloads/ragdoll.jpg", model, classes)
 ```
 出力例：
 ```bash
 {'pred_class': 'Persian', 'prob': 0.60, 'top5': [('Persian', 0.60), ('Maine', 0.31), ...]}
 ```
 モデルの推論が正常に動作し、信頼度付きの上位5クラスが出力される。
+
 ![ラグドール画像で検証](../img/week3-2.jpg)
 
 ---

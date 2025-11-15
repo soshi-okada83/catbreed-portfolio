@@ -78,11 +78,11 @@ backend/data/oxford-iiit-pet/raw/
 backend/notebooks/Week2_01_dataset_preparation_backend_layout.ipynb
 ```
 目的：
-・アーカイブ解凍
-・クラス一覧抽出
-・train/val/test データ分割
-・サンプル可視化
-・雛形作成
+- **アーカイブ解凍**
+- **クラス一覧抽出**
+- **train/val/test データ分割**
+- **サンプル可視化**
+- **雛形作成**
 
 ### 3. 仮想環境構築
 ```bash
@@ -101,9 +101,9 @@ Python (backend .venv)
 
 ### 4. データ解凍とEDA
 Notebook セルを実行して以下を確認：
-・images.tar.gz と annotations.tar.gz の展開成功
-・猫種クラス12種を検出
-・Matplotlibでランダム12枚を可視化
+- **images.tar.gz と annotations.tar.gz の展開成功**
+- **猫種クラス12種を検出**
+- **Matplotlibでランダム12枚を可視化**
 
 出力例：
 ```css
