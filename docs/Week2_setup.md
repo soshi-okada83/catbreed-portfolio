@@ -7,12 +7,13 @@ Oxford-IIIT Pet Datasetを使用し、猫12種を対象にEDA・データ分割�
 ---
 
 ## ✅ 成果物
-項目	内容
-データセット	Oxford-IIIT Pet Dataset（猫12種）
-前処理	tar.gz解凍、train/val/test 分割、自動整形
-可視化	Matplotlibでランダムサンプル表示
-学習環境	backend/.venv 仮想環境構築＋Jupyter設定
-モデル雛形	EfficientNet-B0（出力12クラス）を転移学習用に準備
+| 項目 | 内容 |
+|------|------|
+| データセット | Oxford-IIIT Pet Dataset（猫12種） |
+| 前処理 | tar.gz解凍、train/val/test 分割、自動整形 |
+| 可視化 | Matplotlibでランダムサンプル表示 |
+| 学習環境 | backend/.venv 仮想環境構築＋Jupyter設定 |
+| モデル雛形 | EfficientNet-B0（出力12クラス）を転移学習用に準備 |
 
 ---
 
@@ -133,10 +134,11 @@ Loaded EfficientNet-B0 with 12 output classes
 ```
 
 🧩 Week2の成果まとめ
-項目	状態
-Oxford-IIIT Pet Dataset 取得	✅ 完了
-データ解凍・整形	✅ 完了
-train/val/test 分割	✅ 成功
-可視化（EDA）	✅ 確認済み
-EfficientNet-B0 モデル雛形	✅ 構築済み
-仮想環境 + カーネル設定	✅ 完了
+| 項目               | 状態     |
+| ---------------- | ------ |
+| Oxford-IIIT Pet Dataset 取得  | ✅ 完了   |
+| データ解凍・整形 | ✅ 完了   |
+| train/val/test 分割 | ✅ 成功   |
+| 可視化（EDA）         | ✅ 確認済み   |
+| EfficientNet-B0 モデル雛形         | ✅ 構築済み |
+| 仮想環境 + カーネル設定  | ✅ 完了   |
