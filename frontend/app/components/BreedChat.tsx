@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { fetchBreedChat, ChatMessage } from "../lib/fetchBreedChat";
+import { ChatMessage, streamBreedChat } from "../lib/fetchBreedChat";
 
 type Props = {
   breed: string;
@@ -21,17 +21,32 @@ export default function BreedChat({ breed, className }: Props) {
     if (!input.trim() || !hasBackend || loading) return;
 
     const userMessage: ChatMessage = { role: "user", content: input.trim() };
-    const nextMessages = [...messages, userMessage];
+    const baseMessages = [...messages, userMessage];
 
-    setMessages(nextMessages);
+    // UI 上はユーザー発言＋空のアシスタントメッセージを先に追加
+    setMessages([...baseMessages, { role: "assistant", content: "" }]);
     setInput("");
     setLoading(true);
     setError(null);
 
+    let accumulated = "";
+
     try {
-      const reply = await fetchBreedChat(breed, nextMessages);
-      const assistantMessage: ChatMessage = { role: "assistant", content: reply };
-      setMessages([...nextMessages, assistantMessage]);
+      await streamBreedChat(breed, baseMessages, (delta) => {
+        accumulated += delta;
+        setMessages((prev) => {
+          if (prev.length === 0) return prev;
+          const updated = [...prev];
+          const lastIndex = updated.length - 1;
+          if (updated[lastIndex].role === "assistant") {
+            updated[lastIndex] = {
+              ...updated[lastIndex],
+              content: accumulated,
+            };
+          }
+          return updated;
+        });
+      });
     } catch (e: any) {
       console.error(e);
       setError(e?.message || "チャットの取得に失敗しました");
@@ -65,11 +80,7 @@ export default function BreedChat({ breed, className }: Props) {
         {messages.map((m, idx) => (
           <div
             key={idx}
-            className={
-              m.role === "user"
-                ? "text-right"
-                : "text-left"
-            }
+            className={m.role === "user" ? "text-right" : "text-left"}
           >
             <div
               className={
