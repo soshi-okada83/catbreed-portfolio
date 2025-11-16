@@ -2,6 +2,7 @@ from fastapi import APIRouter, File, UploadFile, HTTPException  # type: ignore[i
 from PIL import Image  # type: ignore[import]
 import io, glob, traceback, logging
 from pathlib import Path
+import json
 import torch  # type: ignore[import]
 import torchvision.transforms as transforms  # type: ignore[import]
 import torchvision.models as models  # type: ignore[import]
@@ -33,6 +34,27 @@ CLASSES = [
     "Egyptian_Mau", "Maine_Coon", "Persian", "Ragdoll",
     "Russian_Blue", "Siamese", "Sphynx"
 ]
+
+# ======== 英語 → 日本語マッピング読み込み ========
+BACKEND_DIR = Path(__file__).resolve().parents[1]
+BREED_MAPPING_PATH = BACKEND_DIR / "data" / "breed_mapping_ja.json"
+
+try:
+    with BREED_MAPPING_PATH.open("r", encoding="utf-8") as f:
+        BREED_EN_TO_JA = json.load(f)
+        logging.info(f"Loaded breed mapping from {BREED_MAPPING_PATH}")
+except FileNotFoundError:
+    BREED_EN_TO_JA = {}
+    logging.warning(
+        f"breed_mapping_ja.json が見つかりませんでした ({BREED_MAPPING_PATH}). "
+        "推論結果は英語のまま返却されます。"
+    )
+
+def to_japanese_class_name(class_en: str) -> str:
+    """
+    英語のクラス名を日本語に変換（未定義の場合はそのまま返す）
+    """
+    return BREED_EN_TO_JA.get(class_en, class_en)
 
 def build_model(num_classes: int):
     """
@@ -125,7 +147,10 @@ async def predict(file: UploadFile = File(...)):
             vals = topk.values.tolist()
 
         top3 = [
-            {"class_name": CLASSES[i], "confidence": round(float(v), 4)}
+            {
+                "class_name": to_japanese_class_name(CLASSES[i]),
+                "confidence": round(float(v), 4)
+            }
             for i, v in zip(idxs, vals)
         ]
         return {
