@@ -9,7 +9,7 @@ type PredictResult = {
   top3: Array<{ breed: string; score: number }>;
 };
 
-export default function Upload({ onResult }: { onResult: (r: PredictResult) => void }) {
+export default function Upload() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -104,7 +104,6 @@ export default function Upload({ onResult }: { onResult: (r: PredictResult) => v
     try {
       const data = process.env.NEXT_PUBLIC_API_URL ? await callApi(file) : await fakePredict(file);
       setResult(data);
-      onResult(data);
 
       if (process.env.NEXT_PUBLIC_API_URL) {
         setDescLoading(true);
@@ -165,10 +164,10 @@ export default function Upload({ onResult }: { onResult: (r: PredictResult) => v
       {result && (
         <div className="mt-8 rounded-2xl border border-dotted border-neutral-700 p-4 text-sm text-neutral-300">
           <div className="font-semibold">
-            Top-1: {result.top1.breed} ({(result.top1.score * 100).toFixed(1)}%)
+            推定結果（１位）: {result.top1.breed} ({(result.top1.score * 100).toFixed(1)}%)
           </div>
           <div className="opacity-80 mt-1">
-            Top-3:{" "}
+            上位３位:{" "}
             {result.top3
               .map((b) => `${b.breed} ${(b.score * 100).toFixed(1)}%`)
               .join(" / ")}
