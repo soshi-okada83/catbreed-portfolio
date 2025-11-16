@@ -3,6 +3,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { fetchDescription } from "../lib/fetchDescription";
 import BreedDescriptionCard from "./BreedDescriptionCard";
 import { BreedDescription } from "../types/description";
+import BreedChat from "./BreedChat";
 
 type PredictResult = {
   top1: { breed: string; score: number };
@@ -178,6 +179,11 @@ export default function Upload() {
       {/* 説明カードは 結果の下 に出す */}
       {descLoading && <p className="mt-6 opacity-80">説明文を生成中…</p>}
       {desc && <BreedDescriptionCard className="mt-6" data={desc} />}
+
+      {/* 猫種ごとのAIチャット */}
+      {result && (
+        <BreedChat className="mt-6" breed={result.top1.breed} />
+      )}
 
       {error && <p className="mt-4 text-red-400">{error}</p>}
     </div>
