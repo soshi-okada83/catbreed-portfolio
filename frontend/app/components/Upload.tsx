@@ -4,6 +4,7 @@ import { fetchDescription } from "../lib/fetchDescription";
 import BreedDescriptionCard from "./BreedDescriptionCard";
 import { BreedDescription } from "../types/description";
 import BreedChat from "./BreedChat";
+import ProgressBar from "./ProgressBar";
 
 type PredictResult = {
   top1: { breed: string; score: number };
@@ -177,7 +178,12 @@ export default function Upload() {
       )}
 
       {/* 説明カードは 結果の下 に出す */}
-      {descLoading && <p className="mt-6 opacity-80">説明文を生成中…</p>}
+      {descLoading && (
+        <div className="mt-6">
+          <p className="opacity-80 text-sm">説明文を生成中…</p>
+          <ProgressBar loading={descLoading} />
+        </div>
+      )}
       {desc && <BreedDescriptionCard className="mt-6" data={desc} />}
 
       {/* 猫種ごとのAIチャット */}
